@@ -1,0 +1,72 @@
+rivate static final Logger logger = Logger.getLogger(JMSJCAMessageBeanSample.class.getName());
+
+    public JMSJCAMessageBeanSample() {
+        try
+		{
+			FileHandler fh = new FileHandler("C:/temp/MyLogFile.log");
+		 logger.addHandler(fh);
+		}
+		catch(IOException io)
+		{
+
+		}
+
+    }
+
+
+    private void queueToQueue(Message message, javax.jms.Session jmsSession, javax.jms.Session Queue1Session)
+           throws java.lang.Exception {
+    if (message instanceof javax.jms.TextMessage)  {
+        String oldContent = ((javax.jms.TextMessage) message).getText();
+        javax.jms.TextMessage newMessage = jmsSession.createTextMessage("Hello "
+               + oldContent);
+        jmsSession.createProducer((Destination) Queue1).send(newMessage);
+    }
+}
+    /**
+     * Passes a message to the listener.
+     *
+     * @param message the message passed to the listener
+     */
+    public void onMessage(Message message) {
+        // implement listener interface here
+        try {
+        if (message instanceof javax.jms.TextMessage) {
+           System.out.println(Level.INFO+ "JMS message content is: " +
+              ((javax.jms.TextMessage) message).getText());
+        }
+    } catch (JMSException ex) {
+        Logger.getLogger(JMSJCAMessageBeanSample.class.getName()).log(Level.SEVERE,
+                         null, ex);
+        return;
+    }
+
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="Connection setup and takedown. Click on the + sign on the left to edit the code.">
+    private void _invoke_queueToQueue() throws java.lang.Exception {
+        javax.jms.Connection Queue1Connection = null;
+        try {
+            Queue1Connection = Queue1.createConnection();
+            Queue1Connection.start();
+            javax.jms.Session Queue1Session = Queue1Connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+           
+        } finally {
+            try {
+                if (Queue1Connection != null) {
+                    Queue1Connection.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="Queue1 resource declaration. Click on the + sign on the left to edit the code.">
+    // comments for inserted variable
+    @javax.annotation.Resource(name = "jms/tx/jmq1", description = "", shareable = false)
+    private javax.jms.ConnectionFactory Queue1;
+    // </editor-fold>
+    // <editor-fold defaultstate="collapsed" desc="EJBContext declaration. Click on the + sign on the left to edit the code.">
+    @javax.annotation.Resource
+    private javax.ejb.EJBContext ectx;
+    // </editor-fold>
